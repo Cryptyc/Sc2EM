@@ -333,8 +333,8 @@ void Area::CreateBases()
 	{
 		// 1) Calculate the SearchBoundingBox (needless to search too far from the RemainingRessources):
 
-		TilePosition topLeftRessources     = {numeric_limits<int>::max(), numeric_limits<int>::max()};
-		TilePosition bottomRightRessources = {numeric_limits<int>::min(), numeric_limits<int>::min()};
+		TilePosition topLeftRessources     = {numeric_limits<float>::max(), numeric_limits<float>::max()};
+		TilePosition bottomRightRessources = {numeric_limits<float>::min(), numeric_limits<float>::min()};
 		for (const Ressource * r : RemainingRessources)
 		{
 			makeBoundingBoxIncludePoint(topLeftRessources, bottomRightRessources, r->TopLeft());

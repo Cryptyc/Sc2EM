@@ -8,48 +8,48 @@ namespace Sc2Bindings
 	WalkPosition WalkPositionFromPoint3D(sc2::Point3D Position)
 	{
 		WalkPosition NewWalkPosition;
-		NewWalkPosition.x = static_cast<int>(round(Position.x));
-		NewWalkPosition.y = static_cast<int>(round(Position.y));
+		NewWalkPosition.x = Position.x;
+		NewWalkPosition.y = Position.y;
 		return NewWalkPosition;
 	}
 
 	TilePosition TilePositionFromPoint3D(sc2::Point3D Position)
 	{
 		TilePosition NewTilePosition;
-		NewTilePosition.x = static_cast<int>(round(Position.x));
-		NewTilePosition.y = static_cast<int>(round(Position.y));
+		NewTilePosition.x = Position.x;
+		NewTilePosition.y = Position.y;
 		return NewTilePosition;
 	}
 
 	Position PositionFromPoint3D(sc2::Point3D Position)
 	{
 		Sc2Bindings::Position NewPosition;
-		NewPosition.x = static_cast<int>(round(Position.x));
-		NewPosition.y = static_cast<int>(round(Position.y));
+		NewPosition.x = Position.x;
+		NewPosition.y = Position.y;
 		return NewPosition;
 	}
 	
 	TilePosition TilePositionFromPoint2D(sc2::Point2D Position)
 	{
 		Sc2Bindings::TilePosition NewPosition;
-		NewPosition.x = static_cast<int>(round(Position.x));
-		NewPosition.y = static_cast<int>(round(Position.y));
+		NewPosition.x = Position.x;
+		NewPosition.y = Position.y;
 		return NewPosition;
 	}
 
 	TilePosition GetInitialTilePosition(sc2::Unit u)
 	{
 		TilePosition ReturnPos;
-		ReturnPos.x = static_cast<int>(round(u.pos.x - u.radius));
-		ReturnPos.y = static_cast<int>(round(u.pos.y - u.radius));
+		ReturnPos.x = u.pos.x - u.radius;
+		ReturnPos.y = u.pos.y - u.radius;
 		return ReturnPos;
 	}
 
 	TilePosition GetSizeFromRadius(float radius)
 	{
 		TilePosition ReturnPos;
-		ReturnPos.x = static_cast<int>(round(radius));
-		ReturnPos.y = static_cast<int>(round(radius));
+		ReturnPos.x = radius;
+		ReturnPos.y = radius;
 		return ReturnPos;
 	}
 
@@ -129,31 +129,4 @@ namespace Sc2Bindings
 							 static_cast<int>(point.y)
 		};
 	}
-
-	bool Pathable(const sc2::GameInfo & info, const sc2::Point2D & point)
-	{
-		const sc2::Point2DI point_i = ToPoint2DI(point);
-		if (point_i.x < 0 || point_i.x >= info.width || point_i.y < 0 || point_i.y >= info.width)
-			return false;
-
-		assert(info.pathing_grid.data.size() == info.width * info.height);
-		const unsigned char encoded_placement = info.pathing_grid.data[point_i.x + ((info.height - 1) - point_i.y) * info.width];
-		const bool decoded_placement = encoded_placement == 255 ? false : true;
-		return decoded_placement;
-	}
-
-	bool Placement(const sc2::GameInfo & info, const sc2::Point2D & point)
-	{
-		const sc2::Point2DI point_i(static_cast<int>(point.x), static_cast<int>(point.y));
-		if (point_i.x < 0 || point_i.x >= info.width || point_i.y < 0 || point_i.y >= info.width)
-		{
-			return false;
-		}
-
-		assert(info.placement_grid.data.size() == info.width * info.height);
-		const unsigned char encoded_placement = info.placement_grid.data[point_i.x + ((info.height - 1) - point_i.y) * info.width];
-		const bool decoded_placement = encoded_placement == 255 ? true : false;
-		return decoded_placement;
-	}
-
 }

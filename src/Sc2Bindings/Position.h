@@ -393,7 +393,7 @@ namespace Sc2Bindings
 
 	/// <summary>Indicates a position that is 1x1 pixel in size. This is the most precise position type.</summary>
 	/// @see Positions
-	typedef Sc2Bindings::Point<int, POSITION_SCALE> Position;
+	typedef Sc2Bindings::Point<float, POSITION_SCALE> Position;
 
 	/// <summary>List of special @ref Position constants.</summary>
 	namespace Positions
@@ -409,7 +409,7 @@ namespace Sc2Bindings
 
 	/// <summary>Indicates a position that is 8x8 pixels in size.</summary>
 	/// @see Game::isWalkable, WalkPositions
-	typedef Sc2Bindings::Point<int, WALKPOSITION_SCALE> WalkPosition;
+	typedef Sc2Bindings::Point<float, WALKPOSITION_SCALE> WalkPosition;
 
 	/// <summary>List of special @ref WalkPosition constants.</summary>
 	namespace WalkPositions
@@ -425,7 +425,7 @@ namespace Sc2Bindings
 
 	/// <summary>Indicates a position that is 32x32 pixels in size. Typically used for building placement.</summary>
 	/// @see TilePositions
-	typedef Sc2Bindings::Point<int, TILEPOSITION_SCALE> TilePosition;
+	typedef Sc2Bindings::Point<float, TILEPOSITION_SCALE> TilePosition;
 
 	/// <summary>List of special @ref TilePosition constants.</summary>
 	namespace TilePositions

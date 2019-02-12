@@ -104,8 +104,8 @@ namespace BWEM
 			static_assert(N > 0, "GridMap::cell_width_in_tiles must be > 0");
 			bwem_assert_throw(pMap->Initialized());
 			bwem_assert_throw(N <= std::min(pMap->Size().x, pMap->Size().y));
-			bwem_assert_throw(pMap->Size().x % N == 0);
-			bwem_assert_throw(pMap->Size().y % N == 0);
+			bwem_assert_throw(static_cast<int>(pMap->Size().x) % N == 0);
+			bwem_assert_throw(static_cast<int>(pMap->Size().y) % N == 0);
 
 
 		}

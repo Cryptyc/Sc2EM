@@ -59,7 +59,7 @@ Map & Map::Instance()
 Position Map::RandomPosition() const
 {
 	const auto PixelSize = Position(Size());
-	return Position(rand() % PixelSize.x, rand() % PixelSize.y);
+	return Position(rand() % static_cast<int>(PixelSize.x), rand() % static_cast<int>(PixelSize.y));
 }
 
 

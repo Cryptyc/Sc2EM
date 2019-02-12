@@ -131,7 +131,7 @@ void MapImpl::LoadData(const ObservationInterface *obs)
 		for (int x = 0; x < WalkSize().x; ++x)
 		{
 			sc2::Point2D tilePos(x, y);
-			if (!(Sc2Bindings::Pathable(obs->GetGameInfo(), tilePos) || Sc2Bindings::Placement(obs->GetGameInfo(), tilePos)))						// For each unwalkable minitile, we also mark its 8 neighbours as not walkable.
+			if (!(obs->IsPathable(Point2D(tilePos.x, tilePos.y)) || obs->IsPlacable(Point2D(tilePos.x, tilePos.y))))						// For each unwalkable minitile, we also mark its 8 neighbours as not walkable.
 			{
 				for (int dy = -1; dy <= +1; ++dy)			// According to some tests, this prevents from wrongly pretending one Marine can go by some thin path.
 				{
