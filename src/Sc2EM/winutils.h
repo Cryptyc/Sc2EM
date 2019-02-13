@@ -16,7 +16,7 @@
 
 #include "utils.h"
 
-namespace BWEM {
+namespace SC2EM {
 namespace utils {
 
 
@@ -47,7 +47,7 @@ private:
 };
 
 
-}} // namespace BWEM::utils
+}} // namespace SC2EM::utils
 
 
 #endif // BWEM_USE_WINUTILS

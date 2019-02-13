@@ -21,7 +21,7 @@
 #include "defs.h"
 
 
-namespace BWEM {
+namespace SC2EM {
 
 	class Neutral;
 	class Mineral;
@@ -68,7 +68,7 @@ namespace BWEM {
 			altitude_t					MaxAltitude() const override { return m_maxAltitude; }
 
 			int							BaseCount() const override { return GetGraph().BaseCount(); }
-			int							ChokePointCount() const override { return GetGraph().ChokePoints().size(); }
+			int							ChokePointCount() const override { return static_cast<int>(GetGraph().ChokePoints().size()); }
 
 			const vector<Sc2Bindings::TilePosition> &			StartingLocations() const override { return m_StartingLocations; }
 
@@ -150,7 +150,7 @@ namespace BWEM {
 
 
 	}
-} // namespace BWEM::detail
+} // namespace SC2EM::detail
 
 
 #endif

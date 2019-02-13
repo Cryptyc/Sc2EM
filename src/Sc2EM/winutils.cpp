@@ -15,7 +15,7 @@
 
 using namespace std;
 
-namespace BWEM {
+namespace SC2EM {
 namespace utils {
 
 
@@ -54,7 +54,7 @@ int64_t Timer::Now() const
 
 
 
-}} // namespace BWEM::utils
+}} // namespace SC2EM::utils
 
 #endif // BWEM_USE_WINUTILS
 

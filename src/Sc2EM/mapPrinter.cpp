@@ -21,7 +21,7 @@ using namespace Sc2Bindings;
 using namespace std;
 
 
-namespace BWEM {
+namespace SC2EM {
 
 using namespace sc2_ext;
 
@@ -113,7 +113,11 @@ void MapPrinter::Point(int x, int y, Color col)
 
 void MapPrinter::Line(WalkPosition A, WalkPosition B, Color col, dashed_t dashedMode)
 {
-	int N = max(1, roundedDist(A, B));
+	float N = roundedDist(A, B);
+	if (N < 1.0f)
+	{
+		N = 1.0f;
+	}
 	if ((dashedMode == dashed) && (N >= 4)) N /= 2;
 
 	for (int i = 0 ; i <= N ; ++i)
@@ -155,7 +159,7 @@ void MapPrinter::Circle(WalkPosition Center, int radius, Color col, fill_t fillM
 }
 
 	
-}} // namespace BWEM::utils
+}} // namespace SC2EM::utils
 
 #endif // BWEM_USE_MAP_PRINTER
 

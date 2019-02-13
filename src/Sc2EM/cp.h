@@ -17,7 +17,7 @@
 #include "defs.h"
 
 
-namespace BWEM {
+namespace SC2EM {
 
 class Neutral;
 class Area;
@@ -168,7 +168,7 @@ typedef ChokePoint::Path CPPath;
 
 
 
-} // namespace BWEM
+} // namespace SC2EM
 
 
 #endif

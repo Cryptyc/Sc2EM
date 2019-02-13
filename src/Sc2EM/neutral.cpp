@@ -17,7 +17,7 @@ using namespace sc2;
 using namespace std;
 
 
-namespace BWEM {
+namespace SC2EM {
 
 using namespace detail;
 using namespace sc2_ext;
@@ -47,7 +47,9 @@ Neutral::~Neutral()
 		RemoveFromTiles();
 	
 		if (Blocking())
+		{
 			MapImpl::Get(GetMap())->OnBlockingNeutralDestroyed(this);
+		}
 	}
 	catch(...)
 	{
@@ -78,8 +80,8 @@ void Neutral::PutOnTiles()
 			bwem_assert(this != pTop);
 			bwem_assert(!pTop->IsGeyser());
 			bwem_assert_plus(pTop->Type().unit_type_id == Type().unit_type_id, "stacked neutrals have different types: " + pTop->Type().getName() + " / " + Type().getName());
-			bwem_assert_plus(pTop->TopLeft() == TopLeft(), "stacked neutrals not aligned: " + my_to_string(pTop->TopLeft()) + " / " + my_to_string(TopLeft()));
-			bwem_assert((dx == 0) && (dy == 0));
+//			bwem_assert_plus(pTop->TopLeft() == TopLeft(), "stacked neutrals not aligned: " + my_to_string(pTop->TopLeft()) + " / " + my_to_string(TopLeft()));
+//			bwem_assert((dx == 0) && (dy == 0));
 
 			pTop->m_pNextStacked = this;
 			return;
@@ -212,7 +214,7 @@ StaticBuilding::StaticBuilding(sc2::Unit u, Map * pMap) : Neutral(u, pMap)
 
 
 	
-} // namespace BWEM
+} // namespace SC2EM
 
 
 

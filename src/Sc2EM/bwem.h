@@ -64,11 +64,11 @@ in which sub-processes are called in sequentially steps.
 */
 
 
-namespace BWEM
+namespace SC2EM
 {
 
 
-} // namespace BWEM
+} // namespace SC2EM
 
 
 #endif

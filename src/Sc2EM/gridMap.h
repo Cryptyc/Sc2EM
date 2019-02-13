@@ -19,7 +19,7 @@
 #include "defs.h"
 
 
-namespace BWEM
+namespace SC2EM
 {
 
 	class Map;
@@ -112,7 +112,7 @@ namespace BWEM
 
 
 	}
-} // namespace BWEM::utils
+} // namespace SC2EM::utils
 
 
 #endif

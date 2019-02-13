@@ -19,7 +19,7 @@
 
 using namespace sc2;
 
-namespace BWEM {
+namespace SC2EM {
 
 	class Ressource;
 	class Mineral;
@@ -223,7 +223,7 @@ namespace BWEM {
 
 
 
-} // namespace BWEM
+} // namespace SC2EM
 
 
 #endif

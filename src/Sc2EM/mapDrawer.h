@@ -18,7 +18,7 @@
 
 
 class BMP;
-namespace BWEM {
+namespace SC2EM {
 class Map;
 namespace utils {
 
@@ -71,7 +71,7 @@ private:
 };
 
 
-}} // namespace BWEM::detail::detail
+}} // namespace SC2EM::detail::detail
 
 
 #endif

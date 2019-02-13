@@ -19,7 +19,7 @@ using namespace Sc2Bindings;
 using namespace std;
 
 
-namespace BWEM {
+namespace SC2EM {
 namespace detail {
 
 
@@ -70,11 +70,11 @@ void MapImpl::Initialize(const ObservationInterface *obs)
 
 ///	Timer overallTimer;
 ///	Timer timer;
-	m_Size = TilePositionFromPoint2D(obs->GetGameInfo().playable_max);
+	m_TileSize = TilePositionFromPoint2D(obs->GetGameInfo().playable_max);
 	m_size = Size().x * Size().y;
-	m_Tiles.resize(m_size);
+	m_Tiles.resize(static_cast<size_t>(round(m_size)));
 
-	m_WalkSize = WalkPosition(Size());
+	m_WalkSizePosition = WalkPosition(Size());
 	m_walkSize = WalkSize().x * WalkSize().y;
 	m_MiniTiles.resize(m_walkSize);
 
@@ -137,9 +137,11 @@ void MapImpl::LoadData(const ObservationInterface *obs)
 				{
 					for (int dx = -1; dx <= +1; ++dx)
 					{
-						WalkPosition w(x + dx, y + dy);
+						WalkPosition w(static_cast<float>(x + dx), static_cast<float>(y + dy));
 						if (Valid(w))
+						{
 							GetMiniTile_(w, check_t::no_check).SetWalkable(false);
+						}
 					}
 				}
 			}
@@ -151,9 +153,9 @@ void MapImpl::LoadData(const ObservationInterface *obs)
 
 		for (int x = 0; x < Size().x; ++x)
 		{
-			TilePosition t(x, y);
+			TilePosition t(static_cast<float>(x), static_cast<float>(y));
 			sc2::Point2D tilePos(x, y);
-			if (Sc2Bindings::Placement(obs->GetGameInfo(), tilePos))
+			if (obs->IsPlacable(Point2D(tilePos.x, tilePos.y)))
 			{
 				GetTile_(t).SetBuildable();
 
@@ -162,7 +164,7 @@ void MapImpl::LoadData(const ObservationInterface *obs)
 				{
 					for (int dx = 0; dx < 4; ++dx)
 					{
-						GetMiniTile_(WalkPosition(t) + WalkPosition(dx, dy), check_t::no_check).SetWalkable(true);
+						GetMiniTile_(WalkPosition(t) + WalkPosition(static_cast<float>(dx), static_cast<float>(dy)), check_t::no_check).SetWalkable(true);
 					}
 				}
 			}
@@ -182,48 +184,68 @@ void MapImpl::LoadData(const ObservationInterface *obs)
 void MapImpl::DecideSeasOrLakes()
 {
 	for (int y = 0 ; y < WalkSize().y ; ++y)
-	for (int x = 0 ; x < WalkSize().x ; ++x)
 	{
-		WalkPosition origin = WalkPosition(x, y);
-		MiniTile & Origin = GetMiniTile_(origin, check_t::no_check);
-		if (Origin.SeaOrLake())
+		for (int x = 0 ; x < WalkSize().x ; ++x)
 		{
-			vector<WalkPosition> ToSearch{origin};
-			vector<MiniTile *> SeaExtent{&Origin};
-			Origin.SetSea();
-			WalkPosition topLeft = origin;
-			WalkPosition bottomRight = origin;
-			while (!ToSearch.empty())
+			WalkPosition origin = WalkPosition(x, y);
+			MiniTile & Origin = GetMiniTile_(origin, check_t::no_check);
+			if (Origin.SeaOrLake())
 			{
-				WalkPosition current = ToSearch.back();
-				if (current.x < topLeft.x) topLeft.x = current.x;
-				if (current.y < topLeft.y) topLeft.y = current.y;
-				if (current.x > bottomRight.x) bottomRight.x = current.x;
-				if (current.y > bottomRight.y) bottomRight.y = current.y;
-
-				ToSearch.pop_back();
-				for (WalkPosition delta : {WalkPosition(0, -1), WalkPosition(-1, 0), WalkPosition(+1, 0), WalkPosition(0, +1)})
+				vector<WalkPosition> ToSearch{ origin };
+				vector<MiniTile *> SeaExtent{ &Origin };
+				Origin.SetSea();
+				WalkPosition topLeft = origin;
+				WalkPosition bottomRight = origin;
+				while (!ToSearch.empty())
 				{
-					WalkPosition next = current + delta;
-					if (Valid(next))
+					WalkPosition current = ToSearch.back();
+					if (current.x < topLeft.x)
 					{
-						MiniTile & Next = GetMiniTile_(next, check_t::no_check);
-						if (Next.SeaOrLake())
+						topLeft.x = current.x;
+					}
+					if (current.y < topLeft.y)
+					{
+						topLeft.y = current.y;
+					}
+					if (current.x > bottomRight.x)
+					{
+						bottomRight.x = current.x;
+					}
+					if (current.y > bottomRight.y)
+					{
+						bottomRight.y = current.y;
+					}
+					ToSearch.pop_back();
+					for (WalkPosition delta : {WalkPosition(0, -1), WalkPosition(-1, 0), WalkPosition(+1, 0), WalkPosition(0, +1)})
+					{
+						WalkPosition next = current + delta;
+						if (Valid(next))
 						{
-							ToSearch.push_back(next);
-							if (SeaExtent.size() <= lake_max_miniTiles) SeaExtent.push_back(&Next);
-							Next.SetSea();
+							MiniTile & Next = GetMiniTile_(next, check_t::no_check);
+							if (Next.SeaOrLake())
+							{
+								ToSearch.push_back(next);
+								if (SeaExtent.size() <= lake_max_miniTiles)
+								{
+									SeaExtent.push_back(&Next);
+								}
+								Next.SetSea();
+							}
 						}
 					}
 				}
-			}
 
-			if ((SeaExtent.size() <= lake_max_miniTiles) &&
-				(bottomRight.x - topLeft.x <= lake_max_width_in_miniTiles) &&
-				(bottomRight.y - topLeft.y <= lake_max_width_in_miniTiles) &&
-				(topLeft.x >= 2) && (topLeft.y >= 2) && (bottomRight.x < WalkSize().x-2) && (bottomRight.y < WalkSize().y-2))
-				for (MiniTile * pSea : SeaExtent)
-					pSea->SetLake();
+				if ((SeaExtent.size() <= lake_max_miniTiles) &&
+					(bottomRight.x - topLeft.x <= lake_max_width_in_miniTiles) &&
+					(bottomRight.y - topLeft.y <= lake_max_width_in_miniTiles) &&
+					(topLeft.x >= 2) && (topLeft.y >= 2) && (bottomRight.x < WalkSize().x - 2) && (bottomRight.y < WalkSize().y - 2))
+				{
+					for (MiniTile * pSea : SeaExtent)
+					{
+						pSea->SetLake();
+					}
+				}
+			}
 		}
 	}
 }
@@ -299,13 +321,23 @@ void MapImpl::ComputeAltitude()
 	
 	vector<pair<WalkPosition, altitude_t>> DeltasByAscendingAltitude;
 
-	for (int dy = 0 ; dy <= range ; ++dy)
-	for (int dx = dy ; dx <= range ; ++dx)			// Only consider 1/8 of possible deltas. Other ones obtained by symmetry.
-		if (dx || dy)
-			DeltasByAscendingAltitude.emplace_back(WalkPosition(dx, dy), altitude_t(0.5 + norm(dx, dy) * altitude_scale));
+	for (int dy = 0; dy <= range; ++dy)
+	{
+		for (int dx = dy; dx <= range; ++dx)			// Only consider 1/8 of possible deltas. Other ones obtained by symmetry.
+		{
+			if (dx || dy)
+			{
+				DeltasByAscendingAltitude.emplace_back(WalkPosition(dx, dy), altitude_t(0.5 + norm(dx, dy) * altitude_scale));
+			}
+		}
+	}
 
 	sort(DeltasByAscendingAltitude.begin(), DeltasByAscendingAltitude.end(),
-		[](const pair<WalkPosition, altitude_t> & a, const pair<WalkPosition, altitude_t> & b){ return a.second < b.second; });
+		[](const pair<WalkPosition, altitude_t> & a, const pair<WalkPosition, altitude_t> & b)
+		{ 
+			return a.second < b.second; 
+		}
+	);
 
 
 	// 2) Fill in ActiveSeaSideList, which basically contains all the seaside miniTiles (from which altitudes are to be computed)
@@ -313,12 +345,16 @@ void MapImpl::ComputeAltitude()
 	struct ActiveSeaSide { WalkPosition origin; altitude_t lastAltitudeGenerated; };
 	vector<ActiveSeaSide> ActiveSeaSideList;
 
-	for (int y = -1 ; y <= WalkSize().y ; ++y)
-	for (int x = -1 ; x <= WalkSize().x ; ++x)
+	for (int y = -1; y <= WalkSize().y; ++y)
 	{
-		WalkPosition w(x, y);
-		if (!Valid(w) || seaSide(w, this))
-			ActiveSeaSideList.push_back(ActiveSeaSide{w, 0});
+		for (int x = -1; x <= WalkSize().x; ++x)
+		{
+			WalkPosition w(x, y);
+			if (!Valid(w) || seaSide(w, this))
+			{
+				ActiveSeaSideList.push_back(ActiveSeaSide{ w, 0 });
+			}
+		}
 	}
 
 	// 3) Dijkstra's algorithm
@@ -330,19 +366,25 @@ void MapImpl::ComputeAltitude()
 		{
 			ActiveSeaSide & Current = ActiveSeaSideList[i];
 			if (altitude - Current.lastAltitudeGenerated >= 2 * altitude_scale)		// optimization : once a seaside miniTile verifies this condition, 
+			{
 				fast_erase(ActiveSeaSideList, i--);									// we can throw it away as it will not generate min altitudes anymore
+			}
 			else
-				for (auto delta : {	WalkPosition(d.x, d.y), WalkPosition(-d.x, d.y), WalkPosition(d.x, -d.y), WalkPosition(-d.x, -d.y),
-									WalkPosition(d.y, d.x), WalkPosition(-d.y, d.x), WalkPosition(d.y, -d.x), WalkPosition(-d.y, -d.x)})
+			{
+				for (auto delta : { WalkPosition(d.x, d.y), WalkPosition(-d.x, d.y), WalkPosition(d.x, -d.y), WalkPosition(-d.x, -d.y),
+									WalkPosition(d.y, d.x), WalkPosition(-d.y, d.x), WalkPosition(d.y, -d.x), WalkPosition(-d.y, -d.x) })
 				{
 					WalkPosition w = Current.origin + delta;
 					if (Valid(w))
 					{
 						auto & miniTile = GetMiniTile_(w, check_t::no_check);
 						if (miniTile.AltitudeMissing())
+						{
 							miniTile.SetAltitude(m_maxAltitude = Current.lastAltitudeGenerated = altitude);
+						}
 					}
 				}
+			}
 		}
 	}
 }
@@ -351,15 +393,23 @@ void MapImpl::ComputeAltitude()
 void MapImpl::ProcessBlockingNeutrals()
 {
 	vector<Neutral *> Candidates;
-	for (auto & s : StaticBuildings())	Candidates.push_back(s.get());
-	for (auto & m : Minerals())			Candidates.push_back(m.get());
+	for (auto & s : StaticBuildings())
+	{
+		Candidates.push_back(s.get());
+	}
+	for (auto & m : Minerals())
+	{
+		Candidates.push_back(m.get());
+	}
 
 	for (Neutral * pCandidate : Candidates)
+	{
 		if (!pCandidate->NextStacked())		// in the case where several neutrals are stacked, we only consider the top one
 		{
 			// 1)  Retreave the Border: the outer border of pCandidate
 			vector<WalkPosition> Border = outerMiniTileBorder(pCandidate->TopLeft(), pCandidate->Size());
-			really_remove_if(Border, [this](WalkPosition w)	{
+			really_remove_if(Border, [this](WalkPosition w) 
+			{
 				return !Valid(w) || !GetMiniTile(w, check_t::no_check).Walkable() ||
 					GetTile(TilePosition(w), check_t::no_check).GetNeutral(); });
 
@@ -379,21 +429,28 @@ void MapImpl::ProcessBlockingNeutrals()
 					{
 						WalkPosition next = current + delta;
 						if (Valid(next) && !contains(Visited, next))
+						{
 							if (GetMiniTile(next, check_t::no_check).Walkable())
+							{
 								if (!GetTile(TilePosition(next), check_t::no_check).GetNeutral())
+								{
 									if (adjoins8SomeLakeOrNeutral(next, this))
 									{
 										ToVisit.push_back(next);
 										Visited.push_back(next);
 									}
+								}
+							}
+						}
 					}
 				}
-				really_remove_if(Border, [&Visited](WalkPosition w)	{ return contains(Visited, w); });
+				really_remove_if(Border, [&Visited](WalkPosition w) { return contains(Visited, w); });
 			}
 
 			// 3)  If at least 2 doors, find the true doors in Border: a true door is a door that gives onto an area big enough
 			vector<WalkPosition> TrueDoors;
 			if (Doors.size() >= 2)
+			{
 				for (WalkPosition door : Doors)
 				{
 					vector<WalkPosition> ToVisit(1, door);
@@ -406,34 +463,40 @@ void MapImpl::ProcessBlockingNeutrals()
 						{
 							WalkPosition next = current + delta;
 							if (Valid(next) && !contains(Visited, next))
+							{
 								if (GetMiniTile(next, check_t::no_check).Walkable())
+								{
 									if (!GetTile(TilePosition(next), check_t::no_check).GetNeutral())
 									{
 										ToVisit.push_back(next);
 										Visited.push_back(next);
 									}
+								}
+							}
 						}
 					}
 					if (Visited.size() >= limit) TrueDoors.push_back(door);
 				}
+			}
 
 			// 4)  If at least 2 true doors, pCandidate is a blocking static building
 			if (TrueDoors.size() >= 2)
 			{
 				// Marks pCandidate (and any Neutral stacked with it) as blocking.
-				for (Neutral * pNeutral = GetTile(pCandidate->TopLeft()).GetNeutral() ; pNeutral ; pNeutral = pNeutral->NextStacked())
+				for (Neutral * pNeutral = GetTile(pCandidate->TopLeft()).GetNeutral(); pNeutral; pNeutral = pNeutral->NextStacked())
 					pNeutral->SetBlocking(TrueDoors);
 
 				// Marks all the miniTiles of pCandidate as blocked.
 				// This way, areas at TrueDoors won't merge together.
-				for (int dy = 0 ; dy < WalkPosition(pCandidate->Size()).y ; ++dy)
-				for (int dx = 0 ; dx < WalkPosition(pCandidate->Size()).x ; ++dx)
-				{
-					auto & miniTile = GetMiniTile_(WalkPosition(pCandidate->TopLeft()) + WalkPosition(dx, dy));
-					if (miniTile.Walkable()) miniTile.SetBlocked();
-				}
+				for (int dy = 0; dy < WalkPosition(pCandidate->Size()).y; ++dy)
+					for (int dx = 0; dx < WalkPosition(pCandidate->Size()).x; ++dx)
+					{
+						auto & miniTile = GetMiniTile_(WalkPosition(pCandidate->TopLeft()) + WalkPosition(dx, dy));
+						if (miniTile.Walkable()) miniTile.SetBlocked();
+					}
 			}
 		}
+	}
 }
 
 
@@ -445,15 +508,26 @@ void MapImpl::ProcessBlockingNeutrals()
 class TempAreaInfo
 {
 public:
-						TempAreaInfo() : m_valid(false), m_id(0), m_top(0, 0), m_highestAltitude(0) { bwem_assert(!Valid());}
+						TempAreaInfo() 
+							: m_valid(false)
+							, m_id(0)
+							, m_top(0, 0)
+							, m_highestAltitude(0)
+						{ 
+							bwem_assert(!Valid());
+						}
 						TempAreaInfo(Area::id id, MiniTile * pMiniTile, WalkPosition pos)
-							: m_valid(true), m_id(id), m_top(pos), m_size(0), m_highestAltitude(pMiniTile->Altitude())
+							: m_valid(true)
+							, m_id(id)
+							, m_top(pos)
+							, m_size(0)
+							, m_highestAltitude(pMiniTile->Altitude())
 														{ Add(pMiniTile); bwem_assert(Valid()); }
 
 	bool				Valid() const					{ return m_valid; }
 	Area::id			Id() const						{ bwem_assert(Valid()); return m_id; }
 	WalkPosition		Top() const						{ bwem_assert(Valid()); return m_top; }
-	int					Size() const					{ bwem_assert(Valid()); return m_size; }
+	float					Size() const					{ bwem_assert(Valid()); return m_size; }
 	altitude_t			HighestAltitude() const			{ bwem_assert(Valid()); return m_highestAltitude; }
 
 	void				Add(MiniTile * pMiniTile)		{ bwem_assert(Valid()); ++m_size; pMiniTile->SetAreaId(m_id); }
@@ -520,16 +594,26 @@ static pair<Area::id, Area::id> findNeighboringAreas(WalkPosition p, const MapIm
 	pair<Area::id, Area::id> result(0, 0);
 
 	for (WalkPosition delta : {WalkPosition(0, -1), WalkPosition(-1, 0), WalkPosition(+1, 0), WalkPosition(0, +1)})
+	{
 		if (pMap->Valid(p + delta))
 		{
 			Area::id areaId = pMap->GetMiniTile(p + delta, check_t::no_check).AreaId();
 			if (areaId > 0)
-				if (!result.first) result.first = areaId;
+			{
+				if (!result.first)
+				{
+					result.first = areaId;
+				}
 				else if (result.first != areaId)
+				{
 					if (!result.second || ((areaId < result.second)))
+					{
 						result.second = areaId;
+					}
+				}
+			}
 		}
-
+	}
 	return result;
 }
 
@@ -538,7 +622,10 @@ static Area::id chooseNeighboringArea(Area::id a, Area::id b)
 {
 	static map<pair<Area::id, Area::id>, int> map_AreaPair_counter;
 
-	if (a > b) swap(a, b);
+	if (a > b)
+	{
+		swap(a, b);
+	}
 	return (map_AreaPair_counter[make_pair(a, b)]++ % 2 == 0) ? a : b;
 }
 
@@ -616,7 +703,9 @@ void MapImpl::CreateAreas(const vector<TempAreaInfo> & TempAreaList)
 			{
 				bwem_assert(newAreaId <= TempArea.Id());
 				if (newAreaId != TempArea.Id())
+				{
 					ReplaceAreaIds(TempArea.Top(), newAreaId);
+				}
 
 				AreasList.emplace_back(TempArea.Top(), TempArea.Size());
 				newAreaId++;
@@ -753,14 +842,24 @@ bool MapImpl::FindBasesForStartingLocations()
 	for (auto location : StartingLocations())
 	{
 		bool found = false;
-		for (Area & area : GetGraph().Areas()) if (!found)
-			for (Base & base : area.Bases()) if (!found)
-				if (queenWiseDist(base.Location(), location) <= max_tiles_between_StartingLocation_and_its_AssignedBase)
+		for (Area & area : GetGraph().Areas())
+		{
+			if (!found)
+			{
+				for (Base & base : area.Bases())
 				{
-					base.SetStartingLocation(location);
-					found = true;
-				}
+					if (!found)
+					{
 
+						if (queenWiseDist(base.Location(), location) <= max_tiles_between_StartingLocation_and_its_AssignedBase)
+						{
+							base.SetStartingLocation(location);
+							found = true;
+						}
+					}
+				}
+			}
+		}
 		 if (!found) atLeastOneFailed = true;
 	}
 
@@ -768,7 +867,7 @@ bool MapImpl::FindBasesForStartingLocations()
 }
 
 
-}} // namespace BWEM::detail
+}} // namespace SC2EM::detail
 
 
 

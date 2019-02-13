@@ -16,7 +16,7 @@ using namespace Sc2Bindings;
 using namespace std;
 
 
-namespace BWEM {
+namespace SC2EM {
 
 using namespace utils;
 
@@ -37,6 +37,6 @@ void onAssertThrowFailed(const std::string & file, int line, const std::string &
 
 
 
-} // namespace BWEM
+} // namespace SC2EM
 
 

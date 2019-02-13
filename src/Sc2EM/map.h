@@ -22,7 +22,7 @@
 #include "defs.h"
 
 
-namespace BWEM
+namespace SC2EM
 {
 
 	class Tile;
@@ -89,10 +89,10 @@ namespace BWEM
 		virtual bool						FindBasesForStartingLocations() = 0;
 
 		// Returns the size of the Map in Tiles.
-		const Sc2Bindings::TilePosition &			Size() const { return m_Size; }
+		const Sc2Bindings::TilePosition &			Size() const { return m_TileSize; }
 
 		// Returns the size of the Map in MiniTiles.
-		const Sc2Bindings::WalkPosition &			WalkSize() const { return m_WalkSize; }
+		const Sc2Bindings::WalkPosition &			WalkSize() const { return m_WalkSizePosition; }
 
 		// Returns the center of the Map in pixels.
 		const Sc2Bindings::Position &				Center() const { return m_center; }
@@ -110,10 +110,10 @@ namespace BWEM
 		virtual int							ChokePointCount() const = 0;
 
 		// Returns a Tile, given its position.
-		const Tile &						GetTile(const Sc2Bindings::TilePosition & p, utils::check_t checkMode = utils::check_t::check) const { bwem_assert((checkMode == utils::check_t::no_check) || Valid(p)); utils::unused(checkMode); return m_Tiles[Size().x * p.y + p.x]; }
+		const Tile &						GetTile(const Sc2Bindings::TilePosition & p, utils::check_t checkMode = utils::check_t::check) const;
 
 		// Returns a MiniTile, given its position.
-		const MiniTile &					GetMiniTile(const Sc2Bindings::WalkPosition & p, utils::check_t checkMode = utils::check_t::check) const { bwem_assert((checkMode == utils::check_t::no_check) || Valid(p)); utils::unused(checkMode); return m_MiniTiles[WalkSize().x * p.y + p.x]; }
+		const MiniTile &					GetMiniTile(const Sc2Bindings::WalkPosition & p, utils::check_t checkMode = utils::check_t::check) const;
 
 		// Returns a Tile or a MiniTile, given its position.
 		// Provided as a support of generic algorithms.
@@ -220,11 +220,11 @@ namespace BWEM
 		Tile &								GetTile_(const Sc2Bindings::TilePosition & p, utils::check_t checkMode = utils::check_t::check) { return const_cast<Tile &>(static_cast<const Map &>(*this).GetTile(p, checkMode)); }
 		MiniTile &							GetMiniTile_(const Sc2Bindings::WalkPosition & p, utils::check_t checkMode = utils::check_t::check) { return const_cast<MiniTile &>(static_cast<const Map &>(*this).GetMiniTile(p, checkMode)); }
 
-		int							m_size = 0;
-		Sc2Bindings::TilePosition			m_Size;
+		float							m_size = 0;
+		Sc2Bindings::TilePosition			m_TileSize;
 
-		int							m_walkSize;
-		Sc2Bindings::WalkPosition			m_WalkSize;
+		float							m_walkSize;
+		Sc2Bindings::WalkPosition			m_WalkSizePosition;
 
 		Sc2Bindings::Position				m_center;
 		std::vector<Tile>			m_Tiles;
@@ -278,10 +278,10 @@ namespace BWEM
 				TPosition next = current + delta;
 				if (Valid(next))
 				{
-					const Tile_t & Next = GetTTile(next, utils::check_t::no_check);
-					if (findCond(Next, next)) return next;
+					const Tile_t & NextTile = GetTTile(next, utils::check_t::no_check);
+					if (findCond(NextTile, next)) return next;
 
-					if (visitCond(Next, next) && !utils::contains(Visited, next))
+					if (visitCond(NextTile, next) && !utils::contains(Visited, next))
 					{
 						ToVisit.push(next);
 						Visited.push_back(next);
@@ -304,7 +304,7 @@ namespace BWEM
 	} // namespace utils
 
 
-} // namespace BWEM
+} // namespace SC2EM
 
 
 #endif

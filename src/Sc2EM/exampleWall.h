@@ -15,7 +15,7 @@
 #include "defs.h"
 #include <vector>
 
-namespace BWEM
+namespace SC2EM
 {
 
 class Map;
@@ -100,7 +100,7 @@ std::vector<ExampleWall> findWalls(const Map & theMap, DebugInterface* Debug);
 
 
 
-}} // namespace BWEM::utils
+}} // namespace SC2EM::utils
 
 
 #endif

@@ -21,7 +21,7 @@ using namespace Sc2Bindings;
 using namespace std;
 
 
-namespace BWEM {
+namespace SC2EM {
 namespace detail {
 
 
@@ -29,10 +29,16 @@ Area * mainArea(MapImpl * pMap, TilePosition topLeft, TilePosition size)
 {
 	map<Area *, int> map_Area_freq;
 
-	for (int dy = 0 ; dy < size.y ; ++dy)
-	for (int dx = 0 ; dx < size.x ; ++dx)
-		if (Area * area = pMap->GetArea(topLeft + TilePosition(dx, dy)))
-			++map_Area_freq[area];
+	for (int dy = 0; dy < size.y; ++dy)
+	{
+		for (int dx = 0; dx < size.x; ++dx)
+		{
+			if (Area * area = pMap->GetArea(topLeft + TilePosition(static_cast<float>(dx), static_cast<float>(dy))))
+			{
+				++map_Area_freq[area];
+			}
+		}
+	}
 
 	return map_Area_freq.empty() ? nullptr : map_Area_freq.rbegin()->first;
 }
@@ -278,17 +284,21 @@ void Graph::ComputeChokePointDistanceMatrix()
 	m_ChokePointDistanceMatrix.clear();
 	m_ChokePointDistanceMatrix.resize(m_ChokePointList.size());
 	for (auto & line : m_ChokePointDistanceMatrix)
+	{
 		line.resize(m_ChokePointList.size(), -1);
+	}
 
 	m_PathsBetweenChokePoints.clear();
 	m_PathsBetweenChokePoints.resize(m_ChokePointList.size());
 	for (auto & line : m_PathsBetweenChokePoints)
+	{
 		line.resize(m_ChokePointList.size());
-
+	}
 	// 2) Compute distances inside each Area
 	for (const Area & area : Areas())
+	{
 		ComputeChokePointDistances(&area);
-
+	}
 	// 3) Compute distances through connected Areas
 	ComputeChokePointDistances(this);
 
@@ -500,9 +510,9 @@ void Graph::CollectInformation()
 	for (int y = 0 ; y < GetMap()->Size().y ; ++y)
 	for (int x = 0 ; x < GetMap()->Size().x ; ++x)
 	{
-		const Tile & tile = GetMap()->GetTile(TilePosition(x, y));
+		const Tile & tile = GetMap()->GetTile(TilePosition(static_cast<float>(x), static_cast<float>(y)));
 		if (tile.AreaId() > 0)
-			GetArea(tile.AreaId())->AddTileInformation(TilePosition(x, y), tile);
+			GetArea(tile.AreaId())->AddTileInformation(TilePosition(static_cast<float>(x), static_cast<float>(y)), tile);
 	}
 
 	// 2) Post-process each Area separately:
@@ -518,12 +528,12 @@ void Graph::CreateBases()
 	for (Area & area : m_Areas)
 	{
 		area.CreateBases();
-		m_baseCount += area.Bases().size();
+		m_baseCount += static_cast<int>(area.Bases().size());
 	}
 }
 
 	
-}} // namespace BWEM::detail
+}} // namespace SC2EM::detail
 
 
 

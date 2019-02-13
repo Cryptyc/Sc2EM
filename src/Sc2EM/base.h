@@ -17,7 +17,7 @@
 #include "defs.h"
 
 
-namespace BWEM {
+namespace SC2EM {
 
 class Ressource;
 class Mineral;
@@ -111,7 +111,7 @@ private:
 
 
 
-} // namespace BWEM
+} // namespace SC2EM
 
 
 #endif

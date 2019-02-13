@@ -15,7 +15,7 @@
 #include <cstdint>
 #include <string>
 
-namespace BWEM
+namespace SC2EM
 {
 
 namespace detail
@@ -82,7 +82,7 @@ const int max_tiles_between_StartingLocation_and_its_AssignedBase = 3;
 } // namespace detail
 
 
-} // namespace BWEM
+} // namespace SC2EM
 
 
 #endif

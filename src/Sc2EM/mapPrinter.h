@@ -19,7 +19,7 @@
 #if BWEM_USE_MAP_PRINTER
 
 class BMP;
-namespace BWEM {
+namespace SC2EM {
 class Map;
 namespace utils {
 
@@ -94,7 +94,7 @@ public:
 	enum fill_t {do_not_fill, fill};
 
 	void						Point(int x, int y, Color col);
-	void						Point(Sc2Bindings::WalkPosition p, Color col) { Point(p.x, p.y, col); }
+	void						Point(Sc2Bindings::WalkPosition p, Color col) { Point(static_cast<int>(round(p.x)), static_cast<int>(round(p.y)), col); }
 
 	void						Line(Sc2Bindings::WalkPosition A, Sc2Bindings::WalkPosition B, Color col, dashed_t dashedMode = not_dashed);
 
@@ -121,7 +121,7 @@ private:
 };
 
 
-}} // namespace BWEM::detail::detail
+}} // namespace SC2EM::detail::detail
 
 #endif // BWEM_USE_MAP_PRINTER
 

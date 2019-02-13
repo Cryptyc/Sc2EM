@@ -17,7 +17,7 @@
 #include "defs.h"
 
 
-namespace BWEM {
+namespace SC2EM {
 
 	class Neutral;
 	class Map;
@@ -169,7 +169,7 @@ namespace BWEM {
 		//	Details: The functions below are used by the BWEM's internals
 
 		void				SetBuildable() { m_bits.buildable = 1; }
-		void				SetGroundHeight(int h) { bwem_assert((0 <= h) && (h <= 2)); m_bits.groundHeight = h; }
+		void				SetGroundHeight(int h) { bwem_assert((0 <= h) ); m_bits.groundHeight = h; }
 		void				SetDoodad() { m_bits.doodad = 1; }
 		void				AddNeutral(Neutral * pNeutral) { bwem_assert(!m_pNeutral && pNeutral); m_pNeutral = pNeutral; }
 		void				SetAreaId(Area::id id) { bwem_assert((id == -1) || !m_areaId && id); m_areaId = id; }
@@ -248,7 +248,7 @@ namespace BWEM {
 
 
 
-} // namespace BWEM
+} // namespace SC2EM
 
 
 #endif

@@ -16,7 +16,7 @@
 #include "defs.h"
 #include <vector>
 
-namespace BWEM {
+namespace SC2EM {
 
 
 namespace sc2_ext {
@@ -27,11 +27,17 @@ inline std::ostream & operator<<(std::ostream & out, Sc2Bindings::Point<T, Scale
 
 
 template<typename T, int Scale = 1>
-inline Sc2Bindings::Position center(Sc2Bindings::Point<T, Scale> A)	{ return Sc2Bindings::Position(A) + Sc2Bindings::Position(Scale/2, Scale/2); }
+inline Sc2Bindings::Position center(Sc2Bindings::Point<T, Scale> A)	
+{ 
+	return Sc2Bindings::Position(A) + Sc2Bindings::Position(Scale/2, Scale/2); 
+}
 
 
 template<typename T, int Scale = 1>
-inline Sc2Bindings::Point<T, Scale> operator+(Sc2Bindings::Point<T, Scale> A, int b)	{ return A + Sc2Bindings::Point<T, Scale>(b, b); }
+inline Sc2Bindings::Point<T, Scale> operator+(Sc2Bindings::Point<T, Scale> A, int b)	
+{ 
+	return A + Sc2Bindings::Point<T, Scale>(static_cast<T>(b), b); 
+}
 
 template<typename T, int Scale = 1>
 inline Sc2Bindings::Point<T, Scale> operator+(int a, Sc2Bindings::Point<T, Scale> B)	{ return B + a; }
@@ -76,36 +82,86 @@ bool inBoundingBox(const Sc2Bindings::Point<T, Scale> & A, const Sc2Bindings::Po
 
 
 template<typename T, int Scale = 1>
-inline int queenWiseDist(Sc2Bindings::Point<T, Scale> A, Sc2Bindings::Point<T, Scale> B){ A -= B; return utils::queenWiseNorm(A.x, A.y); }
+inline int queenWiseDist(Sc2Bindings::Point<T, Scale> A, Sc2Bindings::Point<T, Scale> B)
+{ 
+	A -= B; 
+	return utils::queenWiseNorm(A.x, A.y); 
+}
 
 template<typename T, int Scale = 1>
-inline int squaredDist(Sc2Bindings::Point<T, Scale> A, Sc2Bindings::Point<T, Scale> B)	{ A -= B; return squaredNorm(A.x, A.y); }
+inline int squaredDist(Sc2Bindings::Point<T, Scale> A, Sc2Bindings::Point<T, Scale> B)	
+{ 
+	A -= B; 
+	return squaredNorm(A.x, A.y); 
+}
 
 template<typename T, int Scale = 1>
-inline double dist(Sc2Bindings::Point<T, Scale> A, Sc2Bindings::Point<T, Scale> B)		{ A -= B; return utils::norm(A.x, A.y); }
+inline double dist(Sc2Bindings::Point<T, Scale> A, Sc2Bindings::Point<T, Scale> B)		
+{ 
+	A -= B; 
+	return utils::norm(A.x, A.y); 
+}
 
 template<typename T, int Scale = 1>
-inline int roundedDist(Sc2Bindings::Point<T, Scale> A, Sc2Bindings::Point<T, Scale> B)	{ return int(0.5 + dist(A, B)); }
+inline float roundedDist(Sc2Bindings::Point<T, Scale> A, Sc2Bindings::Point<T, Scale> B)	
+{ 
+	return 0.5 + dist(A, B); 
+}
 
 
-inline int distToRectangle(const Sc2Bindings::Position & a, const Sc2Bindings::TilePosition & TopLeft, const Sc2Bindings::TilePosition & Size)
+inline float distToRectangle(const Sc2Bindings::Position & a, const Sc2Bindings::TilePosition & TopLeft, const Sc2Bindings::TilePosition & Size)
 {
 	auto topLeft = Sc2Bindings::Position(TopLeft);
 	auto bottomRight = Sc2Bindings::Position(TopLeft + Size) - 1;
 
 	if (a.x >= topLeft.x)
+	{
 		if (a.x <= bottomRight.x)
-			if (a.y > bottomRight.y)	return a.y - bottomRight.y;											// S
-			else if (a.y < topLeft.y)	return topLeft.y - a.y;												// N
-			else						return 0;															// inside
+		{
+			if (a.y > bottomRight.y)
+			{
+				return a.y - bottomRight.y;											// S
+			}
+			else if (a.y < topLeft.y)
+			{
+				return topLeft.y - a.y;												// N
+			}
+			else
+			{
+				return 0;															// inside
+			}
+		}
 		else
-			if (a.y > bottomRight.y)	return roundedDist(a, bottomRight);									// SE
-			else if (a.y < topLeft.y)	return roundedDist(a, Sc2Bindings::Position(bottomRight.x, topLeft.y));	// NE
-			else						return a.x - bottomRight.x;											// E
+		{
+			if (a.y > bottomRight.y)
+			{
+				return roundedDist(a, bottomRight);									// SE
+			}
+			else if (a.y < topLeft.y)
+			{
+				return roundedDist(a, Sc2Bindings::Position(bottomRight.x, topLeft.y));	// NE
+			}
+			else
+			{
+				return a.x - bottomRight.x;											// E
+			}
+		}
+	}
 	else
-		if (a.y > bottomRight.y)		return roundedDist(a, Sc2Bindings::Position(topLeft.x, bottomRight.y));	// SW
-		else if (a.y < topLeft.y)		return roundedDist(a, topLeft);										// NW
-		else							return topLeft.x - a.x;												// W
+	{
+		if (a.y > bottomRight.y)
+		{
+			return roundedDist(a, Sc2Bindings::Position(topLeft.x, bottomRight.y));	// SW
+		}
+		else if (a.y < topLeft.y)
+		{
+			return roundedDist(a, topLeft);										// NW
+		}
+		else
+		{
+			return topLeft.x - a.x;												// W
+		}
+	}
 }
 
 
@@ -113,8 +169,8 @@ template<typename T, int Scale = 1>
 inline std::vector<Sc2Bindings::Point<T, Scale>> innerBorder(Sc2Bindings::Point<T, Scale> TopLeft, Sc2Bindings::Point<T, Scale> Size, bool noCorner = false)
 {
 	std::vector<Sc2Bindings::Point<T, Scale>> Border;
-	for (int dy = 0 ; dy < Size.y ; ++dy)
-	for (int dx = 0 ; dx < Size.x ; ++dx)
+	for (float dy = 0 ; dy < Size.y ; ++dy)
+	for (float dx = 0 ; dx < Size.x ; ++dx)
 		if ((dy == 0) || (dy == Size.y-1) ||
 			(dx == 0) || (dx == Size.x-1))
 			if (!noCorner ||
@@ -170,7 +226,7 @@ inline bool disjoint(const Sc2Bindings::Point<T, Scale> & TopLeft1, const Sc2Bin
 
 
 
-}} // namespace BWEM::sc2_ext
+}} // namespace SC2EM::sc2_ext
 
 
 

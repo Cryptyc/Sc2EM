@@ -15,7 +15,7 @@
 
 using namespace std;
 
-namespace BWEM {
+namespace SC2EM {
 namespace utils {
 
 
@@ -65,5 +65,5 @@ bool intersect(int ax, int ay, int bx, int by, int cx, int cy, int dx, int dy)
 }
 
 
-}} // namespace BWEM::utils
+}} // namespace SC2EM::utils
 

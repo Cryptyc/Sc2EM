@@ -17,7 +17,7 @@
 #include "defs.h"
 
 
-namespace BWEM {
+namespace SC2EM {
 
 class Mineral;
 class Geyser;
@@ -162,8 +162,8 @@ private:
 	id								m_id;
 	groupId							m_groupId = 0;
 	Sc2Bindings::WalkPosition				m_top;
-	Sc2Bindings::TilePosition				m_topLeft     = {std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
-	Sc2Bindings::TilePosition				m_bottomRight = {std::numeric_limits<int>::min(), std::numeric_limits<int>::min()};
+	Sc2Bindings::TilePosition				m_topLeft     = {std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
+	Sc2Bindings::TilePosition				m_bottomRight = {std::numeric_limits<float>::min(), std::numeric_limits<float>::min()};
 	altitude_t						m_maxAltitude;
 	int								m_miniTiles;
 	int								m_tiles = 0;
@@ -183,7 +183,7 @@ private:
 
 
 
-} // namespace BWEM
+} // namespace SC2EM
 
 
 #endif

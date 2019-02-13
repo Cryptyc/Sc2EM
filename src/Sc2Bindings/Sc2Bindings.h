@@ -32,9 +32,5 @@ namespace Sc2Bindings
 
 	bool IsStaticNeutral(sc2::UnitTypeID UnitType);
 
-	bool Placement(const sc2::GameInfo & info, const sc2::Point2D & point);
-
-	bool Pathable(const sc2::GameInfo & info, const sc2::Point2D & point);
-
 }
 

@@ -21,7 +21,7 @@ using namespace Sc2Bindings;
 using namespace std;
 
 
-namespace BWEM {
+namespace SC2EM {
 
 using namespace detail;
 using namespace sc2_ext;
@@ -78,7 +78,7 @@ void Base::OnMineralDestroyed(const Mineral * pMineral)
 }
 
 	
-} // namespace BWEM
+} // namespace SC2EM
 
 
 

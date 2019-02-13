@@ -12,9 +12,9 @@
 
 using namespace std;
 
-namespace BWEM {
+namespace SC2EM {
 namespace utils {
 
 
-}} // namespace BWEM::utils
+}} // namespace SC2EM::utils
 

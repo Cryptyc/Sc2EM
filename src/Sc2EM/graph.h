@@ -20,7 +20,7 @@
 #include "defs.h"
 
 
-namespace BWEM {
+namespace SC2EM {
 
 	class Neutral;
 	class Mineral;
@@ -151,7 +151,7 @@ namespace BWEM {
 
 
 	}
-} // namespace BWEM::detail
+} // namespace SC2EM::detail
 
 
 #endif

@@ -17,7 +17,7 @@ using namespace std;
 
 using namespace sc2;
 
-namespace BWEM {
+namespace SC2EM {
 
 using namespace utils;
 using namespace detail;
@@ -39,7 +39,7 @@ void drawDiagonalCrossMap(Sc2Bindings::Position topLeft, Sc2Bindings::Position b
 }
 
 
-}} // namespace BWEM::sc2_ext
+}} // namespace SC2EM::sc2_ext
 
 
 

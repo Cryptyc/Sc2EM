@@ -21,7 +21,7 @@
 using namespace std;
 
 
-namespace BWEM {
+namespace SC2EM {
 
 using namespace detail;
 using namespace Sc2Bindings;
@@ -207,7 +207,9 @@ vector<int> Area::ComputeDistances(TilePosition start, const vector<TilePosition
 
 	// Reset Tile::m_internalData for future usage
 	for (auto e : ToVisit)
-		pMap->GetTile(e.second, check_t::no_check).SetInternalData(0);	
+	{
+		pMap->GetTile(e.second, check_t::no_check).SetInternalData(0);
+	}
 	
 	return Distances;
 }
@@ -218,8 +220,17 @@ void Area::UpdateAccessibleNeighbours()
 	m_AccessibleNeighbours.clear();
 
 	for (auto it : ChokePointsByArea())
-		if (any_of(it.second->begin(), it.second->end(), [](const ChokePoint & cp){ return !cp.Blocked(); }))
+	{
+		if (any_of(it.second->begin(), it.second->end(),
+			[](const ChokePoint & cp)
+		{
+			return !cp.Blocked();
+		}
+		))
+		{
 			m_AccessibleNeighbours.push_back(it.first);
+		}
+	}
 }
 
 
@@ -305,7 +316,9 @@ bool Area::ValidateBaseLocation(TilePosition location, vector<Mineral *> & Block
 
 	// checks the distance to the Bases already created:
 	for (const Base & base : Bases())
+	{
 		if (roundedDist(base.Location(), location) < min_tiles_between_Bases) return false;
+	}
 
 	return true;
 }
@@ -348,29 +361,39 @@ void Area::CreateBases()
 
 		// 2) Mark the Tiles with their distances from each remaining Ressource (Potential Fields >= 0)
 		for (const Ressource * r : RemainingRessources)
-			for (int dy = -dimCC.y-max_tiles_between_CommandCenter_and_ressources ; dy < r->Size().y + dimCC.y+max_tiles_between_CommandCenter_and_ressources ; ++dy)
-			for (int dx = -dimCC.x-max_tiles_between_CommandCenter_and_ressources ; dx < r->Size().x + dimCC.x+max_tiles_between_CommandCenter_and_ressources ; ++dx)
+		{
+			for (int dy = -dimCC.y - max_tiles_between_CommandCenter_and_ressources; dy < static_cast<int>(r->Size().y) + dimCC.y + max_tiles_between_CommandCenter_and_ressources; ++dy)
 			{
-				TilePosition t = r->TopLeft() + TilePosition(dx, dy);
-				if (pMap->Valid(t))
+				for (int dx = -dimCC.x - max_tiles_between_CommandCenter_and_ressources; dx < static_cast<int>(r->Size().x) + dimCC.x + max_tiles_between_CommandCenter_and_ressources; ++dx)
 				{
-					const Tile & tile = pMap->GetTile(t, check_t::no_check);
-					int dist = (distToRectangle(center(t), r->TopLeft(), r->Size())+16)/32;
-					int score = max(max_tiles_between_CommandCenter_and_ressources + 3 - dist, 0);
-					if (r->IsGeyser()) score *= 3;		// somewhat compensates for Geyser alone vs the several Minerals
-					if (tile.AreaId() == Id()) tile.SetInternalData(tile.InternalData() + score);	// note the additive effect (assume tile.InternalData() is 0 at the begining)
+					TilePosition t = r->TopLeft() + TilePosition(static_cast<float>(dx), static_cast<float>(dy));
+					if (pMap->Valid(t))
+					{
+						const Tile & tile = pMap->GetTile(t, check_t::no_check);
+						int dist = static_cast<int>((distToRectangle(center(t), r->TopLeft(), r->Size()) + 16) / 32);
+						int score = max(max_tiles_between_CommandCenter_and_ressources + 3 - dist, 0);
+						if (r->IsGeyser()) score *= 3;		// somewhat compensates for Geyser alone vs the several Minerals
+						if (tile.AreaId() == Id()) tile.SetInternalData(tile.InternalData() + score);	// note the additive effect (assume tile.InternalData() is 0 at the begining)
+					}
 				}
 			}
+		}
 
 		// 3) Invalidate the 7 x 7 Tiles around each remaining Ressource (Starcraft rule)
 		for (const Ressource * r : RemainingRessources)
-			for (int dy = -3 ; dy < r->Size().y + 3 ; ++dy)
-			for (int dx = -3 ; dx < r->Size().x + 3 ; ++dx)
+		{
+			for (int dy = -3; dy < static_cast<int>(r->Size().y) + 3; ++dy)
 			{
-				TilePosition t = r->TopLeft() + TilePosition(dx, dy);
-				if (pMap->Valid(t))
-					pMap->GetTile(t, check_t::no_check).SetInternalData(-1);
+				for (int dx = -3; dx < static_cast<int>(r->Size().y) + 3; ++dx)
+				{
+					TilePosition t = r->TopLeft() + TilePosition(static_cast<float>(dx), static_cast<float>(dy));
+					if (pMap->Valid(t))
+					{
+						pMap->GetTile(t, check_t::no_check).SetInternalData(-1);
+					}
+				}
 			}
+		}
 
 
 		// 4) Search the best location inside the SearchBoundingBox:
@@ -404,8 +427,12 @@ void Area::CreateBases()
 		// 6) Create a new Base at bestLocation, assign to it the relevant ressources and remove them from RemainingRessources:
 		vector<Ressource *> AssignedRessources;
 		for (Ressource * r : RemainingRessources)
-			if (distToRectangle(r->Pos(), bestLocation, dimCC) + 2 <= max_tiles_between_CommandCenter_and_ressources*32)
+		{
+			if (distToRectangle(r->Pos(), bestLocation, dimCC) + 2 <= max_tiles_between_CommandCenter_and_ressources * 32)
+			{
 				AssignedRessources.push_back(r);
+			}
+		}
 		really_remove_if(RemainingRessources, [&AssignedRessources](const Ressource * r){ return contains(AssignedRessources, r); });
 		
 		if (AssignedRessources.empty())
@@ -419,7 +446,7 @@ void Area::CreateBases()
 }
 
 	
-} // namespace BWEM
+} // namespace SC2EM
 
 
 

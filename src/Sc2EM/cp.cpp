@@ -19,7 +19,7 @@ using namespace std;
 
 using namespace sc2;
 
-namespace BWEM {
+namespace SC2EM {
 
 using namespace detail;
 using namespace sc2_ext;
@@ -114,7 +114,7 @@ void ChokePoint::OnBlockingNeutralDestroyed(const Neutral * pBlocking)
 }
 
 
-} // namespace BWEM
+} // namespace SC2EM
 
 
 

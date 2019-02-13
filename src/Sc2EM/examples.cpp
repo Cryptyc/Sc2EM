@@ -22,7 +22,7 @@ using namespace Sc2Bindings;
 using namespace std;
 
 
-namespace BWEM {
+namespace SC2EM {
 
 using namespace utils;
 using namespace sc2_ext;
@@ -506,7 +506,7 @@ void gridMapExample(const Map & theMap, const sc2::ObservationInterface *obs)
 
 
 
-}} // namespace BWEM::utils
+}} // namespace SC2EM::utils
 
 
 

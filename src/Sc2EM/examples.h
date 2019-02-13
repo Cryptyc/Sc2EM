@@ -14,7 +14,7 @@
 #include "exampleWall.h"
 #include "defs.h"
 
-namespace BWEM
+namespace SC2EM
 {
 
 class Map;
@@ -46,7 +46,7 @@ void gridMapExample(const Map & theMap, const sc2::ObservationInterface *obs);
 ///////////////    See alse the examples in exampleWall.h    ///////////////
 
 
-}} // namespace BWEM::utils
+}} // namespace SC2EM::utils
 
 
 #endif

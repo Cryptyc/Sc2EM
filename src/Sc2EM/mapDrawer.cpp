@@ -17,7 +17,7 @@ using namespace Sc2Bindings;
 using namespace std;
 
 
-namespace BWEM {
+namespace SC2EM {
 
 using namespace sc2_ext;
 
@@ -95,7 +95,7 @@ bool MapDrawer::ProcessCommand(const string & command)
 	return false;
 }
 
-}} // namespace BWEM::utils
+}} // namespace SC2EM::utils
 
 
 

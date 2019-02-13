@@ -20,7 +20,7 @@ using namespace Sc2Bindings;
 using namespace std;
 
 
-namespace BWEM {
+namespace SC2EM {
 
 using namespace detail;
 using namespace sc2_ext;
@@ -90,7 +90,7 @@ altitude_t minAltitudeRight(const TilePosition & tile, const Map & theMap)
 }
 
 
-} // namespace BWEM
+} // namespace SC2EM
 
 
 

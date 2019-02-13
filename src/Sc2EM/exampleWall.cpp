@@ -21,7 +21,7 @@ using namespace Sc2Bindings;
 using namespace std;
 
 
-namespace BWEM {
+namespace SC2EM {
 
 using namespace utils;
 using namespace sc2_ext;
@@ -414,7 +414,7 @@ vector<ExampleWall> findWalls(const Map & theMap, DebugInterface* Debug)
 }
 
 
-}} // namespace BWEM::utils
+}} // namespace SC2EM::utils
 
 
 
