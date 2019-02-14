@@ -217,8 +217,8 @@ namespace SC2EM
 	protected:
 		Map() = default;
 
-		Tile &								GetTile_(const Sc2Bindings::TilePosition & p, utils::check_t checkMode = utils::check_t::check) { return const_cast<Tile &>(static_cast<const Map &>(*this).GetTile(p, checkMode)); }
-		MiniTile &							GetMiniTile_(const Sc2Bindings::WalkPosition & p, utils::check_t checkMode = utils::check_t::check) { return const_cast<MiniTile &>(static_cast<const Map &>(*this).GetMiniTile(p, checkMode)); }
+		Tile &								GetTile_(const Sc2Bindings::TilePosition & p, utils::check_t checkMode = utils::check_t::check);
+		MiniTile &							GetMiniTile_(const Sc2Bindings::WalkPosition & p, utils::check_t checkMode = utils::check_t::check);
 
 		float							m_size = 0;
 		Sc2Bindings::TilePosition			m_TileSize;

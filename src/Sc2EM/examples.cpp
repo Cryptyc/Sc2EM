@@ -55,8 +55,8 @@ void drawMap(const Map & theMap, sc2::DebugInterface* Debug)
 		for (auto f : theMap.RawFrontier())
 			DebugDrawBox(Debug, Position(f.second), Position(f.second + 1), MapDrawer::Color::frontier, bool("isSolid"));
 
-	for (int y = 0 ; y < theMap.Size().y ; ++y)
-	for (int x = 0 ; x < theMap.Size().x ; ++x)
+	for (float y = 0 ; y < theMap.Size().y ; ++y)
+	for (float x = 0 ; x < theMap.Size().x ; ++x)
 	{
 		TilePosition t(x, y);
 		const Tile & tile = theMap.GetTile(t, check_t::no_check);
@@ -72,8 +72,8 @@ void drawMap(const Map & theMap, sc2::DebugInterface* Debug)
 		}
 	}
 
-	for (int y = 0 ; y < theMap.WalkSize().y ; ++y)
-	for (int x = 0 ; x < theMap.WalkSize().x ; ++x)
+	for (float y = 0 ; y < theMap.WalkSize().y ; ++y)
+	for (float x = 0 ; x < theMap.WalkSize().x ; ++x)
 	{
 		WalkPosition w(x, y);
 		const MiniTile & miniTile = theMap.GetMiniTile(w, check_t::no_check);
@@ -132,12 +132,12 @@ void drawMap(const Map & theMap, sc2::DebugInterface* Debug)
 
 static void printNeutral(const Map & theMap, const Neutral * n, MapPrinter::Color col)
 {
-	const WalkPosition delta(n->Pos().x < theMap.Center().x ? +1 : -1, n->Pos().y < theMap.Center().y ? +1 : -1);
+	const WalkPosition delta(n->Pos().x < theMap.Center().x ? +1.0f : -1.0f, n->Pos().y < theMap.Center().y ? +1.0f : -1.0f);
 	const int stackSize = MapPrinter::showStackedNeutrals ? theMap.GetTile(n->TopLeft()).StackedNeutrals() : 1;
 
 	for (int i = 0 ; i < stackSize ; ++i)
 	{
-		auto origin = WalkPosition(n->TopLeft()) + delta * i;
+		auto origin = WalkPosition(n->TopLeft()) + delta * static_cast<float>(i);
 		auto size = WalkPosition (n->Size());
 		if (!theMap.Valid(origin) || !theMap.Valid(origin + size - 1)) break;
 
@@ -197,8 +197,8 @@ void printMap(const Map & theMap)
 {
 	map<int, MapPrinter::Color> map_Zone_Color;		// a "Zone" is either an Area or a continent
 
-	for (int y = 0 ; y < theMap.WalkSize().y ; ++y)
-	for (int x = 0 ; x < theMap.WalkSize().x ; ++x)
+	for (float y = 0 ; y < theMap.WalkSize().y ; ++y)
+	for (float x = 0 ; x < theMap.WalkSize().x ; ++x)
 	{
 		WalkPosition p(x, y);
 		const auto & miniTile = theMap.GetMiniTile(p, check_t::no_check);
@@ -239,8 +239,8 @@ void printMap(const Map & theMap)
 	}
 
 	if (MapPrinter::showData)
-		for (int y = 0 ; y < theMap.Size().y ; ++y)
-		for (int x = 0 ; x < theMap.Size().x ; ++x)
+		for (float y = 0 ; y < theMap.Size().y ; ++y)
+		for (float x = 0 ; x < theMap.Size().x ; ++x)
 		{
 			int data = theMap.GetTile(TilePosition(x, y)).Data();
 			uint8_t c = uint8_t(((data/1)*1) % 256);
@@ -250,8 +250,8 @@ void printMap(const Map & theMap)
 		}
 
 	if (MapPrinter::showUnbuildable)
-		for (int y = 0 ; y < theMap.Size().y ; ++y)
-		for (int x = 0 ; x < theMap.Size().x ; ++x)
+		for (float y = 0 ; y < theMap.Size().y ; ++y)
+		for (float x = 0 ; x < theMap.Size().x ; ++x)
 			if (!theMap.GetTile(TilePosition(x, y)).Buildable())
 			{
 				WalkPosition origin(TilePosition(x, y));
@@ -259,15 +259,15 @@ void printMap(const Map & theMap)
 			}
 
 	if (MapPrinter::showGroundHeight)
-		for (int y = 0 ; y < theMap.Size().y ; ++y)
-		for (int x = 0 ; x < theMap.Size().x ; ++x)
+		for (float y = 0 ; y < theMap.Size().y ; ++y)
+		for (float x = 0 ; x < theMap.Size().x ; ++x)
 		{
 			int groundHeight = theMap.GetTile(TilePosition(x, y)).GroundHeight();
 			if (groundHeight >= 1)
 				for (int dy = 0 ; dy < 4 ; ++dy)
 				for (int dx = 0 ; dx < 4 ; ++dx)
 				{
-					WalkPosition p = WalkPosition(TilePosition(x, y)) + WalkPosition(dx, dy);
+					WalkPosition p = WalkPosition(TilePosition(x, y)) + WalkPosition(static_cast<float>(dx), static_cast<float>(dy));
 					if (theMap.GetMiniTile(p, check_t::no_check).Walkable())		// groundHeight is usefull only for walkable miniTiles
 						if ((dx + dy) & (groundHeight == 1 ? 1 : 3))
 							MapPrinter::Get().Point(p, MapPrinter::Color::higherGround);
@@ -445,13 +445,13 @@ vector<const Unit*> SimpleGridMap::GetUnits(TilePosition topLeft, TilePosition b
 {
 	vector<const Unit*> Res;
 
-	int i1, j1, i2, j2;
+	float i1, j1, i2, j2;
 	tie(i1, j1) = GetCellCoords(topLeft);
 	tie(i2, j2) = GetCellCoords(bottomRight);
 
-	for (int j = j1; j <= j2; ++j)
+	for (int j = static_cast<int>(j1); j <= static_cast<int>(j2); ++j)
 	{
-		for (int i = i1; i <= i2; ++i)
+		for (int i = static_cast<int>(i1); i <= static_cast<int>(i2); ++i)
 		{
 			for (const Unit* unit : GetCell(i, j).Units)
 			{

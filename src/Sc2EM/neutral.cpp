@@ -92,28 +92,30 @@ void Neutral::PutOnTiles()
 
 void Neutral::RemoveFromTiles()
 {
-	for (int dy = 0 ; dy < Size().y ; ++dy)
-	for (int dx = 0 ; dx < Size().x ; ++dx)
+	for (float dy = 0; dy < Size().y; ++dy)
 	{
-		auto & tile = MapImpl::Get(GetMap())->GetTile_(TopLeft() + TilePosition(dx, dy));
-		bwem_assert(tile.GetNeutral());
-
-		if (tile.GetNeutral() == this)
+		for (float dx = 0; dx < Size().x; ++dx)
 		{
-			tile.RemoveNeutral(this);
-			if (m_pNextStacked) tile.AddNeutral(m_pNextStacked);
-		}
-		else
-		{
-			Neutral * pPrevStacked = tile.GetNeutral();
-			while (pPrevStacked->NextStacked() != this) pPrevStacked = pPrevStacked->NextStacked();
-			bwem_assert(pPrevStacked->Type().unit_type_id == Type().unit_type_id);
-			bwem_assert(pPrevStacked->TopLeft() == TopLeft());
-			bwem_assert((dx == 0) && (dy == 0));
+			auto & tile = MapImpl::Get(GetMap())->GetTile_(TopLeft() + TilePosition(dx, dy));
+			bwem_assert(tile.GetNeutral());
 
-			pPrevStacked->m_pNextStacked = m_pNextStacked;
-			m_pNextStacked = nullptr;
-			return;
+			if (tile.GetNeutral() == this)
+			{
+				tile.RemoveNeutral(this);
+				if (m_pNextStacked) tile.AddNeutral(m_pNextStacked);
+			}
+			else
+			{
+				Neutral * pPrevStacked = tile.GetNeutral();
+				while (pPrevStacked->NextStacked() != this) pPrevStacked = pPrevStacked->NextStacked();
+				bwem_assert(pPrevStacked->Type().unit_type_id == Type().unit_type_id);
+				bwem_assert(pPrevStacked->TopLeft() == TopLeft());
+				bwem_assert((dx == 0) && (dy == 0));
+
+				pPrevStacked->m_pNextStacked = m_pNextStacked;
+				m_pNextStacked = nullptr;
+				return;
+			}
 		}
 	}
 

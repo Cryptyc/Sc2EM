@@ -82,7 +82,7 @@ void MapPrinter::Initialize(const Map * pMap)
 
 	m_pMap = pMap;
 	m_pBMP = make_unique<BMP>();
-	m_pBMP->SetSize(pMap->Size().x*4, pMap->Size().y*4);
+	m_pBMP->SetSize(static_cast<int>(pMap->Size().x*4), static_cast<int>(pMap->Size().y*4));
 	m_pBMP->SetBitDepth(24);
 }
 
@@ -120,37 +120,54 @@ void MapPrinter::Line(WalkPosition A, WalkPosition B, Color col, dashed_t dashed
 	}
 	if ((dashedMode == dashed) && (N >= 4)) N /= 2;
 
-	for (int i = 0 ; i <= N ; ++i)
+	for (float i = 0 ; i <= N ; ++i)
 		MapPrinter::Get().Point((A*i + B*(N-i))/N, col);
 }
 
 
 void MapPrinter::Rectangle(WalkPosition TopLeft, WalkPosition BottomRight, Color col, fill_t fillMode, dashed_t dashedMode)
 {
-	for (int y = TopLeft.y ; y <= BottomRight.y ; ++y)
-	for (int x = TopLeft.x ; x <= BottomRight.x ; ++x)
-		if ((fillMode == fill) || (y == TopLeft.y) || (y == BottomRight.y) || (x == TopLeft.x) || (x == BottomRight.x))
-			if ((dashedMode == not_dashed) || ((x + y) & 1))
-				MapPrinter::Get().Point(x, y, col);
+	for (int y = static_cast<int>(TopLeft.y); y <= static_cast<int>(BottomRight.y); ++y)
+	{
+		for (int x = static_cast<int>(TopLeft.x); x <= static_cast<int>(BottomRight.x); ++x)
+		{
+			if ((fillMode == fill) || (y == static_cast<int>(TopLeft.y)) || (y == static_cast<int>(BottomRight.y)) || (x == static_cast<int>(TopLeft.x)) || (x == static_cast<int>(BottomRight.x)))
+			{
+				if ((dashedMode == not_dashed) || ((x + y) & 1))
+				{
+
+					MapPrinter::Get().Point(x, y, col);
+				}
+			}
+		}
+	}
 }
 
 
 void MapPrinter::Square(WalkPosition Center, int radius, Color col, fill_t fillMode)
 {
-	for (int y = Center.y-radius ; y <= Center.y+radius ; ++y)
-	for (int x = Center.x-radius ; x <= Center.x+radius ; ++x)
-		if ((fillMode == fill) || (y == Center.y-radius) || (y == Center.y+radius) || (x == Center.x-radius) || (x == Center.x+radius))
-			if (m_pMap->Valid(WalkPosition(x, y)))
-				MapPrinter::Get().Point(x, y, col);
+	for (int y = static_cast<int>(Center.y) - radius; y <= static_cast<int>(Center.y) + radius; ++y)
+	{
+		for (int x = static_cast<int>(Center.x) - radius; x <= static_cast<int>(Center.x) + radius; ++x)
+		{
+			if ((fillMode == fill) || (y == static_cast<int>(Center.y) - radius) || (y == static_cast<int>(Center.y) + radius) || (x == static_cast<int>(Center.x) - radius) || (x == static_cast<int>(Center.x) + radius))
+			{
+				if (m_pMap->Valid(WalkPosition(static_cast<float>(x), static_cast<float>(y))))
+				{
+					MapPrinter::Get().Point(x, y, col);
+				}
+			}
+		}
+	}
 }
 
 
 void MapPrinter::Circle(WalkPosition Center, int radius, Color col, fill_t fillMode)
 {
-	for (int y = Center.y-radius ; y <= Center.y+radius ; ++y)
-	for (int x = Center.x-radius ; x <= Center.x+radius ; ++x)
+	for (int y = static_cast<int>(Center.y-radius) ; y <= static_cast<int>(Center.y+radius) ; ++y)
+	for (int x = static_cast<int>(Center.x-radius) ; x <= static_cast<int>(Center.x+radius) ; ++x)
 	{
-		WalkPosition w(x, y);
+		WalkPosition w(static_cast<float>(x), static_cast<float>(y));
 		if (dist(w, Center) <= radius)
 		if ((fillMode == fill) || (dist(w, Center) >= radius-1))
 			if (m_pMap->Valid(w))

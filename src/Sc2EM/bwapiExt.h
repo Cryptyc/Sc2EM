@@ -36,7 +36,7 @@ inline Sc2Bindings::Position center(Sc2Bindings::Point<T, Scale> A)
 template<typename T, int Scale = 1>
 inline Sc2Bindings::Point<T, Scale> operator+(Sc2Bindings::Point<T, Scale> A, int b)	
 { 
-	return A + Sc2Bindings::Point<T, Scale>(static_cast<T>(b), b); 
+	return A + Sc2Bindings::Point<T, Scale>(static_cast<T>(b), static_cast<T>(b));
 }
 
 template<typename T, int Scale = 1>
@@ -105,7 +105,7 @@ inline double dist(Sc2Bindings::Point<T, Scale> A, Sc2Bindings::Point<T, Scale> 
 template<typename T, int Scale = 1>
 inline float roundedDist(Sc2Bindings::Point<T, Scale> A, Sc2Bindings::Point<T, Scale> B)	
 { 
-	return 0.5 + dist(A, B); 
+	return static_cast<float>(0.5 + dist(A, B)); 
 }
 
 

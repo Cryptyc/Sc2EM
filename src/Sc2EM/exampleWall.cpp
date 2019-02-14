@@ -37,15 +37,17 @@ static bool canBuildWall(const Map & theMap, sc2::UnitTypeID type, TilePosition 
 	if (!theMap.Valid(location)) return false;
 	if (!theMap.Valid(location + dim - 1)) return false;
 
-	for (int dy = 0 ; dy < dim.y ; ++dy)
-	for (int dx = 0 ; dx < dim.x ; ++dx)
+	for (float dy = 0 ; dy < dim.y ; ++dy)
 	{
-		TilePosition t = location + TilePosition(dx, dy);
+		for (float dx = 0; dx < dim.x; ++dx)
+		{
+			TilePosition t = location + TilePosition(dx, dy);
 
-		const auto & tile = theMap.GetTile(t);
-		
-		if (!tile.Buildable()) return false;
-		if (tile.GetNeutral()) return false;
+			const auto & tile = theMap.GetTile(t);
+
+			if (!tile.Buildable()) return false;
+			if (tile.GetNeutral()) return false;
+		}
 	}
 
 	return true;
@@ -215,10 +217,10 @@ void ExampleWall::Compute(int wallSize, const vector<TilePosition> & BuildableBo
 				if (!tightEnough(m_BuildingTypes.front(), map_BorderTile_Info.at(borderTile1))) continue;
 				if (!tightEnough(m_BuildingTypes.back(), map_BorderTile_Info.at(borderTile2))) continue;
 
-				for (int dy1 = 0 ; dy1 < BuildingDims.front().y ; ++dy1)
-				for (int dx1 = 0 ; dx1 < BuildingDims.front().x ; ++dx1)
-				for (int dy2 = 0 ; dy2 < BuildingDims.back().y ; ++dy2)
-				for (int dx2 = 0 ; dx2 < BuildingDims.back().x ; ++dx2)
+				for (float dy1 = 0 ; dy1 < BuildingDims.front().y ; ++dy1)
+				for (float dx1 = 0 ; dx1 < BuildingDims.front().x ; ++dx1)
+				for (float dy2 = 0 ; dy2 < BuildingDims.back().y ; ++dy2)
+				for (float dx2 = 0 ; dx2 < BuildingDims.back().x ; ++dx2)
 				{
 					if ((wallSize == 1) && ((dx1 != dx2) || (dy1 != dy2))) continue;
 
@@ -244,13 +246,13 @@ void ExampleWall::Compute(int wallSize, const vector<TilePosition> & BuildableBo
 										 m_Locations.back(), BuildingDims.back())) continue;
 					}
 
-					int minX = (wallSize < 3) ? -1 : min(m_Locations.front().x, m_Locations.back().x) - BuildingDims[1].x;
-					int minY = (wallSize < 3) ? -1 : min(m_Locations.front().y, m_Locations.back().y) - BuildingDims[1].y;
-					int maxX = (wallSize < 3) ? -1 : max(m_Locations.front().x + BuildingDims.front().x, m_Locations.back().x + BuildingDims.back().x);
-					int maxY = (wallSize < 3) ? -1 : max(m_Locations.front().y + BuildingDims.front().y, m_Locations.back().y + BuildingDims.back().y);
+					float minX = (wallSize < 3) ? -1 : min(m_Locations.front().x, m_Locations.back().x) - BuildingDims[1].x;
+					float minY = (wallSize < 3) ? -1 : min(m_Locations.front().y, m_Locations.back().y) - BuildingDims[1].y;
+					float maxX = (wallSize < 3) ? -1 : max(m_Locations.front().x + BuildingDims.front().x, m_Locations.back().x + BuildingDims.back().x);
+					float maxY = (wallSize < 3) ? -1 : max(m_Locations.front().y + BuildingDims.front().y, m_Locations.back().y + BuildingDims.back().y);
 
-					for (int y = minY ; y <= maxY ; ++y)
-					for (int x = minX ; x <= maxX ; ++x)
+					for (float y = minY ; y <= maxY ; ++y)
+					for (float x = minX ; x <= maxX ; ++x)
 					{
 						if (wallSize == 3)
 						{
@@ -393,7 +395,7 @@ void ExampleWall::PostCompute()
 		for (int i = 0 ; i < (int)m_Locations.size() ; ++i)
 			m_center += Position(m_Locations[i]) + (Position(Sc2UnitTypes::getInstance().GetTileSize(m_BuildingTypes[i]))/2);
 
-		m_center /= m_Locations.size();
+		m_center /= static_cast<float>(m_Locations.size());
 	}
 }
 

@@ -63,7 +63,10 @@ bool intersect(int ax, int ay, int bx, int by, int cx, int cy, int dx, int dy)
 {
 	return get_line_intersection(ax, ay, bx, by, cx, cy, dx, dy);
 }
-
+bool intersect(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy)
+{
+	return get_line_intersection(static_cast<double>(ax), static_cast<double>(ay), static_cast<double>(bx), static_cast<double>(by), static_cast<double>(cx), static_cast<double>(cy), static_cast<double>(dx), static_cast<double>(dy));
+}
 
 }} // namespace SC2EM::utils
 

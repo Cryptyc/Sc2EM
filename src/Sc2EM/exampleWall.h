@@ -66,7 +66,7 @@ public:
 	void						DrawLocations() const;
 
 	bool						Possible() const						{ return !m_Locations.empty(); }
-	int							Size() const							{ return m_Locations.size(); }
+	int							Size() const							{ return static_cast<int>(m_Locations.size()); }
 	Sc2Bindings::Position				Center() const							{ return m_center; }
 
 	const std::vector<Sc2Bindings::TilePosition> &	Locations() const		{ return m_Locations; }

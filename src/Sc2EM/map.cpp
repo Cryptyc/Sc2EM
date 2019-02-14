@@ -68,7 +68,7 @@ Map & Map::Instance()
 Position Map::RandomPosition() const
 {
 	const auto PixelSize = Position(Size());
-	return Position(rand() % static_cast<int>(PixelSize.x), rand() % static_cast<int>(PixelSize.y));
+	return Position(static_cast<float>(rand() % static_cast<int>(PixelSize.x)), static_cast<float>(rand() % static_cast<int>(PixelSize.y)));
 }
 
 
@@ -103,15 +103,36 @@ const Tile &Map::GetTile(const Sc2Bindings::TilePosition & p, utils::check_t che
 
 	bwem_assert((checkMode == utils::check_t::no_check) || Valid(p));
 	utils::unused(checkMode); 
-	return m_Tiles[Size().x * p.y + p.x]; 
+	int index = static_cast<int>(Size().x * p.y + p.x);
+	if (index >= m_Tiles.size())
+	{
+		index = m_Tiles.size() - 1;
+	}
+	return m_Tiles[index]; 
 }
 
 const MiniTile &Map::GetMiniTile(const Sc2Bindings::WalkPosition & p, utils::check_t checkMode) const
 { 
 	bwem_assert((checkMode == utils::check_t::no_check) || Valid(p)); 
 	utils::unused(checkMode); 
-	return m_MiniTiles[WalkSize().x * p.y + p.x]; 
+	int index = static_cast<int>(WalkSize().x * p.y + p.x);
+	if (index >= m_Tiles.size())
+	{
+		index = m_Tiles.size() - 1;
+	}
+	return m_MiniTiles[index];
 }
+
+Tile& Map::GetTile_(const Sc2Bindings::TilePosition & p, utils::check_t checkMode) 
+{
+	return const_cast<Tile &>(static_cast<const Map &>(*this).GetTile(p, checkMode)); 
+}
+
+MiniTile& Map::GetMiniTile_(const Sc2Bindings::WalkPosition & p, utils::check_t checkMode)
+{ 
+	return const_cast<MiniTile &>(static_cast<const Map &>(*this).GetMiniTile(p, checkMode));
+}
+
 
 TilePosition Map::Crop(const TilePosition & p) const
 {

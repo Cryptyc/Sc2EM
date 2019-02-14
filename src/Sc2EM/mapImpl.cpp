@@ -76,7 +76,7 @@ void MapImpl::Initialize(const ObservationInterface *obs)
 
 	m_WalkSizePosition = WalkPosition(Size());
 	m_walkSize = WalkSize().x * WalkSize().y;
-	m_MiniTiles.resize(m_walkSize);
+	m_MiniTiles.resize(static_cast<size_t>(round(m_walkSize)));
 
 	m_center = Position(Size())/2;
 
@@ -183,9 +183,9 @@ void MapImpl::LoadData(const ObservationInterface *obs)
 
 void MapImpl::DecideSeasOrLakes()
 {
-	for (int y = 0 ; y < WalkSize().y ; ++y)
+	for (float y = 0 ; y < WalkSize().y ; ++y)
 	{
-		for (int x = 0 ; x < WalkSize().x ; ++x)
+		for (float x = 0 ; x < WalkSize().x ; ++x)
 		{
 			WalkPosition origin = WalkPosition(x, y);
 			MiniTile & Origin = GetMiniTile_(origin, check_t::no_check);

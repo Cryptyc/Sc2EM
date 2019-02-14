@@ -68,11 +68,11 @@ namespace SC2EM
 			Cell &						GetCell(int i, int j, check_t checkMode = check_t::check) { bwem_assert((checkMode == check_t::no_check) || ValidCoords(i, j)); utils::unused(checkMode); return m_Cells[m_width * j + i]; }
 
 			// Returns the Cell thats contains the Tile t
-			const Cell &				GetCell(const Sc2Bindings::TilePosition & t, check_t checkMode = check_t::check) const { bwem_assert((checkMode == check_t::no_check) || m_pMap->Valid(t)); utils::unused(checkMode); return GetCell(t.x / N, t.y / N, check_t::no_check); }
-			Cell &						GetCell(const Sc2Bindings::TilePosition & t, check_t checkMode = check_t::check) { bwem_assert((checkMode == check_t::no_check) || m_pMap->Valid(t)); utils::unused(checkMode); return GetCell(t.x / N, t.y / N, check_t::no_check); }
+			const Cell &				GetCell(const Sc2Bindings::TilePosition & t, check_t checkMode = check_t::check) const { bwem_assert((checkMode == check_t::no_check) || m_pMap->Valid(t)); utils::unused(checkMode); return GetCell(static_cast<int>(t.x / N), static_cast<int>(t.y / N), check_t::no_check); }
+			Cell &						GetCell(const Sc2Bindings::TilePosition & t, check_t checkMode = check_t::check) { bwem_assert((checkMode == check_t::no_check) || m_pMap->Valid(t)); utils::unused(checkMode); return GetCell(static_cast<int>(t.x / N), static_cast<int>(t.y / N), check_t::no_check); }
 
 			// Returns the coordinates of the Cell thats contains the Tile t
-			std::pair<int, int>			GetCellCoords(const Sc2Bindings::TilePosition & t, check_t checkMode = check_t::check) const { bwem_assert((checkMode == check_t::no_check) || m_pMap->Valid(t)); utils::unused(checkMode); return std::make_pair(t.x / N, t.y / N); }
+			std::pair<float, float>			GetCellCoords(const Sc2Bindings::TilePosition & t, check_t checkMode = check_t::check) const { bwem_assert((checkMode == check_t::no_check) || m_pMap->Valid(t)); utils::unused(checkMode); return std::make_pair(t.x / N, t.y / N); }
 
 			// Returns specific tiles of a Cell, given its coordinates.
 			Sc2Bindings::TilePosition			GetTopLeft(int i, int j, check_t checkMode = check_t::check) const { bwem_assert((checkMode == check_t::no_check) || ValidCoords(i, j)); utils::unused(checkMode); return Sc2Bindings::WalkPosition(i*N, j*N); }
@@ -97,8 +97,8 @@ namespace SC2EM
 		template<class T, int N>
 		GridMap<T, N>::GridMap(const Map * pMap)
 			: m_pMap(pMap),
-			m_width(pMap->Size().x / N),
-			m_height(pMap->Size().y / N),
+			m_width(static_cast<int>(round(pMap->Size().x / N))),
+			m_height(static_cast<int>(round(pMap->Size().x / N))),
 			m_Cells(m_width * m_height)
 		{
 			static_assert(N > 0, "GridMap::cell_width_in_tiles must be > 0");

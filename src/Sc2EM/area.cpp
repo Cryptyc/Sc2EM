@@ -156,12 +156,14 @@ vector<int> Area::ComputeDistances(TilePosition start, const vector<TilePosition
 		currentTile.SetInternalData(0);										// resets Tile::m_internalData for future usage
 		currentTile.SetMarked();
 
-		for (int i = 0 ; i < (int)Targets.size() ; ++i)
+		for (int i = 0; i < (int)Targets.size(); ++i)
+		{
 			if (current == Targets[i])
 			{
 				Distances[i] = int(0.5 + currentDist * 32 / 10000.0);
 				--remainingTargets;
 			}
+		}
 		if (!remainingTargets) break;
 
 		for (TilePosition delta : {	TilePosition(-1, -1), TilePosition(0, -1), TilePosition(+1, -1),
@@ -202,8 +204,8 @@ vector<int> Area::ComputeDistances(TilePosition start, const vector<TilePosition
 			}
 		}
 	}
-
-	bwem_assert(!remainingTargets);
+	std::cout << "Error " << remainingTargets << " from " << Targets.size() << std::endl;
+//	bwem_assert(!remainingTargets);
 
 	// Reset Tile::m_internalData for future usage
 	for (auto e : ToVisit)
@@ -269,16 +271,29 @@ int Area::ComputeBaseLocationScore(TilePosition location) const
 
 	int sumScore = 0;
 	for (int dy = 0 ; dy < dimCC.y ; ++dy)
-	for (int dx = 0 ; dx < dimCC.x ; ++dx)
 	{
-		const Tile & tile = pMap->GetTile(location + TilePosition(dx, dy), check_t::no_check);
-		if (!tile.Buildable()) return -1;
-		if (tile.InternalData() == -1) return -1;		// The special value InternalData() == -1 means there is some ressource at maximum 3 tiles, which Starcraft rules forbid.
-												// Unfortunately, this is guaranteed only for the ressources in this Area, which is the very reason of ValidateBaseLocation
-		if (tile.AreaId() != Id()) return -1;
-		if (tile.GetNeutral() && tile.GetNeutral()->IsStaticBuilding()) return -1;
-
-		sumScore += tile.InternalData();
+		for (int dx = 0; dx < dimCC.x; ++dx)
+		{
+			const Tile & tile = pMap->GetTile(location + TilePosition(static_cast<float>(dx), static_cast<float>(dy)), check_t::no_check);
+			if (!tile.Buildable())
+			{
+				return -1;
+			}
+			if (tile.InternalData() == -1)
+			{
+				return -1;		// The special value InternalData() == -1 means there is some ressource at maximum 3 tiles, which Starcraft rules forbid.
+			}
+			// Unfortunately, this is guaranteed only for the ressources in this Area, which is the very reason of ValidateBaseLocation
+			if (tile.AreaId() != Id())
+			{
+				return -1;
+			}
+			if (tile.GetNeutral() && tile.GetNeutral()->IsStaticBuilding())
+			{
+				return -1;
+			}
+			sumScore += tile.InternalData();
+		}
 	}
 
 	return sumScore;
@@ -297,19 +312,32 @@ bool Area::ValidateBaseLocation(TilePosition location, vector<Mineral *> & Block
 
 	BlockingMinerals.clear();
 
-	for (int dy = -3 ; dy < dimCC.y + 3 ; ++dy)
-	for (int dx = -3 ; dx < dimCC.x + 3 ; ++dx)
+	for (int dy = -3; dy < dimCC.y + 3; ++dy)
 	{
-		TilePosition t = location + TilePosition(dx, dy);
-		if (pMap->Valid(t))
+		for (int dx = -3 ; dx < dimCC.x + 3 ; ++dx)
 		{
-			const Tile & tile = pMap->GetTile(t, check_t::no_check);
-			if (Neutral * n = tile.GetNeutral())
+			TilePosition t = location + TilePosition(static_cast<float>(dx), static_cast<float>(dy));
+			if (pMap->Valid(t))
 			{
-				if (n->IsGeyser()) return false;
-				if (Mineral * m = n->IsMineral())
-					if (m->InitialAmount() <= 8) BlockingMinerals.push_back(m);
-					else return false;
+				const Tile & tile = pMap->GetTile(t, check_t::no_check);
+				if (Neutral * n = tile.GetNeutral())
+				{
+					if (n->IsGeyser())
+					{
+						return false;
+					}
+					if (Mineral * m = n->IsMineral())
+					{
+						if (m->InitialAmount() <= 8)
+						{
+							BlockingMinerals.push_back(m);
+						}
+						else
+						{
+							return false;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -362,11 +390,11 @@ void Area::CreateBases()
 		// 2) Mark the Tiles with their distances from each remaining Ressource (Potential Fields >= 0)
 		for (const Ressource * r : RemainingRessources)
 		{
-			for (int dy = -dimCC.y - max_tiles_between_CommandCenter_and_ressources; dy < static_cast<int>(r->Size().y) + dimCC.y + max_tiles_between_CommandCenter_and_ressources; ++dy)
+			for (float dy = -dimCC.y - max_tiles_between_CommandCenter_and_ressources; dy < r->Size().y + dimCC.y + max_tiles_between_CommandCenter_and_ressources; ++dy)
 			{
-				for (int dx = -dimCC.x - max_tiles_between_CommandCenter_and_ressources; dx < static_cast<int>(r->Size().x) + dimCC.x + max_tiles_between_CommandCenter_and_ressources; ++dx)
+				for (float dx = -dimCC.x - max_tiles_between_CommandCenter_and_ressources; dx < r->Size().x + dimCC.x + max_tiles_between_CommandCenter_and_ressources; ++dx)
 				{
-					TilePosition t = r->TopLeft() + TilePosition(static_cast<float>(dx), static_cast<float>(dy));
+					TilePosition t = r->TopLeft() + TilePosition(dx, dy);
 					if (pMap->Valid(t))
 					{
 						const Tile & tile = pMap->GetTile(t, check_t::no_check);
@@ -382,11 +410,11 @@ void Area::CreateBases()
 		// 3) Invalidate the 7 x 7 Tiles around each remaining Ressource (Starcraft rule)
 		for (const Ressource * r : RemainingRessources)
 		{
-			for (int dy = -3; dy < static_cast<int>(r->Size().y) + 3; ++dy)
+			for (float dy = -3; dy < r->Size().y + 3; ++dy)
 			{
-				for (int dx = -3; dx < static_cast<int>(r->Size().y) + 3; ++dx)
+				for (float dx = -3; dx < r->Size().y + 3; ++dx)
 				{
-					TilePosition t = r->TopLeft() + TilePosition(static_cast<float>(dx), static_cast<float>(dy));
+					TilePosition t = r->TopLeft() + TilePosition(dx, dy);
 					if (pMap->Valid(t))
 					{
 						pMap->GetTile(t, check_t::no_check).SetInternalData(-1);
@@ -401,27 +429,37 @@ void Area::CreateBases()
 		int bestScore = 0;
 		vector<Mineral *> BlockingMinerals;
 
-		for (int y = topLeftSearchBoundingBox.y ; y <= bottomRightSearchBoundingBox.y ; ++y)
-		for (int x = topLeftSearchBoundingBox.x ; x <= bottomRightSearchBoundingBox.x ; ++x)
+		for (float y = topLeftSearchBoundingBox.y ; y <= bottomRightSearchBoundingBox.y ; ++y)
 		{
-			int score = ComputeBaseLocationScore(TilePosition(x, y));
-			if (score > bestScore)
-				if (ValidateBaseLocation(TilePosition(x, y), BlockingMinerals))
+			for (float x = topLeftSearchBoundingBox.x; x <= bottomRightSearchBoundingBox.x; ++x)
+			{
+				int score = ComputeBaseLocationScore(TilePosition(x, y));
+				if (score > bestScore)
 				{
-					bestScore = score;
-					bestLocation = TilePosition(x, y);
+					if (ValidateBaseLocation(TilePosition(x, y), BlockingMinerals))
+					{
+						bestScore = score;
+						bestLocation = TilePosition(static_cast<float>(x), static_cast<float>(y));
+					}
 				}
+			}
 		}
 
 		// 5) Clear Tile::m_internalData (required due to our use of Potential Fields: see comments in 2))
 		for (const Ressource * r : RemainingRessources)
-			for (int dy = -dimCC.y-max_tiles_between_CommandCenter_and_ressources ; dy < r->Size().y + dimCC.y+max_tiles_between_CommandCenter_and_ressources ; ++dy)
-			for (int dx = -dimCC.x-max_tiles_between_CommandCenter_and_ressources ; dx < r->Size().x + dimCC.x+max_tiles_between_CommandCenter_and_ressources ; ++dx)
+		{
+			for (float dy = -dimCC.y - max_tiles_between_CommandCenter_and_ressources; dy < r->Size().y + dimCC.y + max_tiles_between_CommandCenter_and_ressources; ++dy)
 			{
-				TilePosition t = r->TopLeft() + TilePosition(dx, dy);
-				if (pMap->Valid(t)) pMap->GetTile(t, check_t::no_check).SetInternalData(0);
+				for (float dx = -dimCC.x - max_tiles_between_CommandCenter_and_ressources; dx < r->Size().x + dimCC.x + max_tiles_between_CommandCenter_and_ressources; ++dx)
+				{
+					TilePosition t = r->TopLeft() + TilePosition(dx, dy);
+					if (pMap->Valid(t))
+					{
+						pMap->GetTile(t, check_t::no_check).SetInternalData(0);
+					}
+				}
 			}
-
+		}
 		if (!bestScore) break;
 
 		// 6) Create a new Base at bestLocation, assign to it the relevant ressources and remove them from RemainingRessources:

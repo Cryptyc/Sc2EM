@@ -44,6 +44,11 @@ inline int queenWiseNorm(int dx, int dy)
 	return std::max(abs(dx), abs(dy));
 }
 
+inline int queenWiseNorm(float dx, float dy)
+{
+	return static_cast<int>(round(std::max(abs(dx), abs(dy))));
+}
+
 
 inline int squaredNorm(int dx, int dy)
 {
@@ -52,6 +57,17 @@ inline int squaredNorm(int dx, int dy)
 
 
 inline double norm(int dx, int dy)
+{
+	return sqrt(squaredNorm(dx, dy));
+}
+
+inline float squaredNorm(float dx, float dy)
+{
+	return dx * dx + dy * dy;
+}
+
+
+inline double norm(float dx, float dy)
 {
 	return sqrt(squaredNorm(dx, dy));
 }
